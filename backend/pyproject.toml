@@ -1,0 +1,18 @@
+[project]
+name = "talent-match-ai"
+version = "0.1.0"
+description = "Talent Match AI"
+authors = [ ]
+requires-python = "~=3.12.11"
+dependencies = [
+    "faker>=40.1.0",
+    "fastapi[standard]>=0.128.0",
+    "openai>=2.14.0",
+    "python-dotenv>=1.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "markdown>=3.10",
+    "weasyprint>=67.0",
+]
