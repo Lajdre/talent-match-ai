@@ -44,7 +44,8 @@
             };
 
             shellHook = ''
-              unset PYTHONPATH
+              export PYTHONPATH="src"
+              cd backend
               uv sync
               . .venv/bin/activate
               [[ -f .env ]] && set -a && source .env && set +a
