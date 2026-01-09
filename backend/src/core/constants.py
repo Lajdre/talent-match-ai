@@ -9,7 +9,7 @@ ALLOWED_NODES = [
   "University",
   "Skill",
   "Technology",
-  # "Project",
+  "Project",
   "Certification",
   "Location",
   "JobTitle",

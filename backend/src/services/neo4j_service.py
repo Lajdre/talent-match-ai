@@ -38,7 +38,7 @@ def save_rfp_to_graph(rfp_data: RFPStructure):
         r.description = $description,
         r.client = $client,
         r.budget = $budget_range,
-        r.deadline = $start_date,
+        r.deadline = $start_date, // change to start_date later
         r.location = $location,
         r.team_size = $team_size
     """
