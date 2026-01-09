@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from pathlib import Path
@@ -6,6 +7,7 @@ from result import Err
 
 from core.models import RFPStructure
 from core.utils import extract_text_from_pdf
+from repositories.rfp_repository import get_next_rfp_id
 from services.neo4j_service import save_rfp_to_graph
 from services.openai_service import get_openai_chat
 
@@ -29,6 +31,8 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
   try:
     result = await structured_llm.ainvoke(
       f"Extract the following RFP information from the text provided. "
+      "Important: If you see skills like PostgreSQL or JavaScript, that shuld be included in the output, they should be written like 'Postgresql' and 'Javascript' - in the final version. "
+      "Other formatting should be standard. "
       f"Infer missing dates or details logically if implied.\n\nText:\n{text}"
     )
     return result
@@ -75,29 +79,24 @@ def _save_to_json_file(rfp_data: RFPStructure):
     json.dump(current_data, f, indent=2)
 
 
-async def process_rfp_pdf(file_path: str) -> dict:
+async def _process_rfp(pdf_path: Path) -> dict:
   """
-  Main pipeline: PDF -> Text -> Pydantic -> JSON and Neo4j
+  Inner pipeline for one PDF (what process_rfp_pdf used to be).
   """
-  path_obj: Path = Path(file_path)
-  if not path_obj.exists():
-    raise FileNotFoundError(f"File not found: {file_path}")
+  logger.info("Processing RFP: %s", pdf_path.name)
 
-  logger.info(f"Processing RFP: {path_obj.name}")
-
-  text_content = extract_text_from_pdf(path_obj)
+  text_content = extract_text_from_pdf(pdf_path)
   if not text_content.strip():
-    return {"status": "error", "message": "No text extracted from PDF"}
+    return {"status": "error", "message": f"No text extracted from {pdf_path.name}"}
 
-  rfp_structure: RFPStructure = await _extract_rfp_data(text_content)
-
+  rfp_structure = await _extract_rfp_data(text_content)
+  rfp_structure.id = get_next_rfp_id()
   _save_to_json_file(rfp_structure)
 
   try:
     save_rfp_to_graph(rfp_structure)
   except Exception as e:
-    logger.error(f"Neo4j ingestion failed: {e}")
-    # We don't fail the whole request if DB sync fails, but we note it
+    logger.error("Neo4j ingestion failed: %s", e)
     return {
       "status": "partial_success",
       "message": "Saved to JSON but failed to sync to Graph",
@@ -109,3 +108,32 @@ async def process_rfp_pdf(file_path: str) -> dict:
     "message": f"RFP {rfp_structure.id} processed successfully",
     "data": rfp_structure.model_dump(),
   }
+
+
+async def ingest_rfp(file_path: str) -> list[dict]:
+  """
+  Main pipeline: PDF -> Text -> Pydantic -> JSON and Neo4j
+  """
+  path_obj: Path = Path(file_path)
+  if not path_obj.exists():
+    raise FileNotFoundError(f"File not found: {file_path}")
+
+  if path_obj.is_dir():
+    pdf_files = sorted(path_obj.glob("*.pdf"))
+    if not pdf_files:
+      raise ValueError("Directory contains no PDF files")
+
+    results = await asyncio.gather(
+      *[_process_rfp(pdf) for pdf in pdf_files],
+      return_exceptions=True,
+    )
+
+    return [
+      (r if isinstance(r, dict) else {"status": "error", "message": str(r)})
+      for r in results
+    ]
+
+  if not path_obj.suffix.lower() == ".pdf":
+    raise ValueError("Provided file is not a PDF")
+
+  return [await _process_rfp(path_obj)]
