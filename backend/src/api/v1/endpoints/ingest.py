@@ -5,9 +5,9 @@ from pathlib import Path
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from services.ingest_cv import process_cv_pdf
+from services.ingest_cv import ingest_cv
 from services.ingest_projects import process_projects_json
-from services.ingest_rfp import process_rfp_pdf
+from services.ingest_rfp import ingest_rfp
 
 router = APIRouter(prefix="/ingest")
 
@@ -24,36 +24,36 @@ class IngestRequest(BaseModel):
 @router.post("/cv")
 async def ingest_cv_endpoint(request: IngestRequest):
   """
-  Trigger the ingestion of a specific CV PDF from the filesystem.
-  path: absolute path or relative path to the backend root.
+  Ingest a single CV PDF or every PDF inside a directory (non-recursive).
   """
   try:
-    result = await process_cv_pdf(request.file_path)
-    return result
+    results: list[dict] = await ingest_cv(request.file_path)
+    return results[0]  # for now
+    # return results if len(results) != 1 else results[0]   # backward compat
   except FileNotFoundError:
-    raise HTTPException(status_code=404, detail="CV file not found")
+    raise HTTPException(status_code=404, detail="CV file or directory not found")
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
   except Exception as e:
-    logger.error(f"Ingestion error: {str(e)}")
+    logger.error("CV ingestion error: %s", e)
     raise HTTPException(status_code=500, detail="Internal processing error")
 
 
 @router.post("/rfp")
 async def ingest_rfp_endpoint(request: IngestRequest):
   """
-  Ingest an RFP PDF.
-  Extracts requirements, saves to JSON, and updates the Neo4j Knowledge Graph.
+  Ingest a single RFP PDF or every PDF inside a directory.
   """
   try:
-    result = await process_rfp_pdf(request.file_path)
-    return result
+    results: list[dict] = await ingest_rfp(request.file_path)
+    # return results if len(results) != 1 else results[0]
+    return results[0]  # for now
   except FileNotFoundError:
-    raise HTTPException(status_code=404, detail="RFP file not found")
+    raise HTTPException(status_code=404, detail="RFP file or directory not found")
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
   except Exception as e:
-    logger.error(f"RFP Ingestion error: {str(e)}")
+    logger.error("RFP Ingestion error: %s", e)
     raise HTTPException(status_code=500, detail="Internal processing error")
 
 
@@ -89,7 +89,7 @@ async def ingest_cv_upload(file: UploadFile = File(...)):
       tmp.write(content)
       tmp_path = tmp.name
 
-    result = await process_cv_pdf(tmp_path)
+    result = await ingest_cv(tmp_path)
     return result
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
@@ -114,7 +114,7 @@ async def ingest_rfp_upload(file: UploadFile = File(...)):
       tmp.write(content)
       tmp_path = tmp.name
 
-    result = await process_rfp_pdf(tmp_path)
+    result = await ingest_rfp(tmp_path)
     return result
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
