@@ -1,0 +1,13 @@
+[project]
+name = "talent-match-ai-client"
+version = "0.1.0"
+description = "Talent Match AI Client"
+authors = [ ]
+requires-python = "~=3.12.11"
+dependencies = [
+ "httpx>=0.28.1",
+ "streamlit>=1.52.2",
+]
+
+[tool.ruff]
+indent-width = 2
