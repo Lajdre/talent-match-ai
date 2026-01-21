@@ -3,7 +3,7 @@ import logging
 from langchain_neo4j import Neo4jGraph
 
 from core.config import config
-from core.models.models import RFPStructure
+from core.models.rfp_models import RFPStructure
 
 logger = logging.getLogger(__name__)
 

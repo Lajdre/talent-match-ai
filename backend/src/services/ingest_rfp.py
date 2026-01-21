@@ -5,7 +5,7 @@ from pathlib import Path
 
 from result import Err
 
-from core.models.models import RFPStructure
+from core.models.rfp_models import RFPStructure
 from core.utils import extract_text_from_pdf
 from repositories.rfp_repository import get_next_rfp_id
 from services.neo4j_service import save_rfp_to_graph
