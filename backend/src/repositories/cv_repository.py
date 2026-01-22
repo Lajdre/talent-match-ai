@@ -1,15 +1,8 @@
-import logging
-
 from core.models.cv_models import CVStructure
 from services.neo4j_service import get_neo4j_graph
 
-logger = logging.getLogger(__name__)
-
 
 def upsert_cv(cv: CVStructure):
-  """
-  Ingests CV data based on the strict schema definition.
-  """
   graph = get_neo4j_graph()
 
   def merge_person():

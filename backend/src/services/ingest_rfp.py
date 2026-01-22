@@ -7,8 +7,7 @@ from result import Err
 
 from core.models.rfp_models import RFPStructure
 from core.utils import extract_text_from_pdf
-from repositories.rfp_repository import get_next_rfp_id
-from services.neo4j_service import save_rfp_to_graph
+from repositories.rfp_repository import get_next_rfp_id, save_rfp
 from services.openai_service import get_openai_chat
 
 logger = logging.getLogger(__name__)
@@ -23,10 +22,8 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
   """
   openai_chat_result = get_openai_chat(temperature=0)
   if isinstance(openai_chat_result, Err):
-    raise  # TODO: propagate
-  # fails silently without api key
+    raise  # TODO: propagate; fails silently without api key
 
-  # with_structured_output forces the LLM to return the Pydantic object
   structured_llm = openai_chat_result.ok().with_structured_output(RFPStructure)
 
   try:
@@ -44,16 +41,14 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
 
 def _save_to_json_file(rfp_data: RFPStructure):
   """
-  Appends the new RFP to the global rfps.json file.
-  Handles creation if file doesn't exist.
+  Adds the new RFP to the global rfps.json file. Updates if already exists.
+  Handles creation if the file doesn't exist.
   """
-  # Ensure directory exists
   if not RFP_STORAGE_DIR.exists():
     RFP_STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 
   current_data = []
 
-  # Load existing
   if RFP_JSON_FILE.exists():
     try:
       with open(RFP_JSON_FILE, "r") as f:
@@ -75,15 +70,11 @@ def _save_to_json_file(rfp_data: RFPStructure):
   if not updated:
     current_data.append(rfp_dict)
 
-  # Save back
   with open(RFP_JSON_FILE, "w") as f:
     json.dump(current_data, f, indent=2)
 
 
 async def _process_rfp(pdf_path: Path) -> dict:
-  """
-  Inner pipeline for one PDF (what process_rfp_pdf used to be).
-  """
   logger.info("Processing RFP: %s", pdf_path.name)
 
   text_content = extract_text_from_pdf(pdf_path)
@@ -95,7 +86,7 @@ async def _process_rfp(pdf_path: Path) -> dict:
   _save_to_json_file(rfp_structure)
 
   try:
-    save_rfp_to_graph(rfp_structure)
+    save_rfp(rfp_structure)
   except Exception as e:
     logger.error("Neo4j ingestion failed: %s", e)
     return {
@@ -112,9 +103,7 @@ async def _process_rfp(pdf_path: Path) -> dict:
 
 
 async def ingest_rfp(file_path: str) -> list[dict]:
-  """
-  Main pipeline: PDF -> Text -> Pydantic -> JSON and Neo4j
-  """
+  """Main pipeline: PDF -> Text -> Pydantic -> JSON and Neo4j"""
   path_obj: Path = Path(file_path)
   if not path_obj.exists():
     raise FileNotFoundError(f"File not found: {file_path}")

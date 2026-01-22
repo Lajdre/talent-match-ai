@@ -1,11 +1,14 @@
+import logging
+
 from core.models.models import RFPRead
+from core.models.rfp_models import RFPStructure
 from services.neo4j_service import get_neo4j_graph
+
+logger = logging.getLogger(__name__)
 
 
 def get_rfps() -> list[RFPRead]:
-  """
-  Fetches RFPs with needed skills.
-  """
+  """Fetches RFPs with needed skills."""
   cypher = """
     MATCH (r:RFP)
 
@@ -46,3 +49,59 @@ def get_next_rfp_id() -> str:
   last_id = result[0]["id"]  # e.g., "RFP-042"
   num = int(last_id.split("-")[1]) + 1
   return f"RFP-{num:03d}"
+
+
+def save_rfp(rfp_data: RFPStructure):
+  """
+  Creates the RFP node and connects it to Skill nodes using the NEEDS relationship.
+  Fails if the RFP node already exists.
+  """
+  graph = get_neo4j_graph()
+
+  exists_cypher = """
+      MATCH (r:RFP {id: $id})
+      RETURN r.id AS id
+      LIMIT 1
+  """
+  if graph.query(exists_cypher, params={"id": rfp_data.id}):
+    raise ValueError(f"RFP with id '{rfp_data.id}' already exists.")
+    # TODO: provide a nice message later
+
+  rfp_cypher = """
+    MERGE (r:RFP {id: $id})
+    SET r.title = $title,
+        r.description = $description,
+        r.client = $client,
+        r.budget = $budget_range,
+        r.deadline = $start_date,
+        r.location = $location,
+        r.team_size = $team_size
+    """
+
+  graph.query(rfp_cypher, params=rfp_data.model_dump())
+
+  # Create NEEDS relationships to Skills. Iterate through requirements to link them.
+  skill_cypher = """
+    MATCH (r:RFP {id: $rfp_id})
+    MERGE (s:Skill {id: $skill_name})
+    ON CREATE SET s.name = $skill_name
+
+    MERGE (r)-[rel:NEEDS]->(s)
+    SET rel.experience_level = $proficiency,
+        rel.mandatory = $is_mandatory
+    """
+
+  for req in rfp_data.requirements:
+    graph.query(
+      skill_cypher,
+      params={
+        "rfp_id": rfp_data.id,
+        "skill_name": req.skill_name,
+        "proficiency": req.min_proficiency,
+        "is_mandatory": req.is_mandatory,
+      },
+    )
+
+  logger.info(
+    f"Saved RFP {rfp_data.id} to Neo4j with {len(rfp_data.requirements)} skill requirements"
+  )
