@@ -46,7 +46,7 @@
             shellHook = ''
               export PYTHONPATH="src"
               cd backend
-              uv sync
+              uv sync --group dev
               . .venv/bin/activate
               [[ -f .env ]] && set -a && source .env && set +a
               [[ $DEVSHELL_SHELL ]] && exec "$DEVSHELL_SHELL"
