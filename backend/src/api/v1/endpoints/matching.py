@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
+from shared_types.matching_types import MatchResponse
+from shared_types.project_types import ProjectAssignmentRequest
 
-from core.models.models import AssignmentRequest, MatchResponse
 from repositories.matching_repository import MatchingRepository
 
 router = APIRouter(prefix="/match")
@@ -26,7 +27,7 @@ async def find_matches(
 
 
 @router.post("/{rfp_id}/confirm")
-async def confirm_assignment(rfp_id: str, request: AssignmentRequest):
+async def confirm_assignment(rfp_id: str, request: ProjectAssignmentRequest):
   """
   Finalize the RFP.
   1. Converts RFP to a Project.

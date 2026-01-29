@@ -1,8 +1,10 @@
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Query
+from shared_types.programmer_types import ProgrammerRead
+from shared_types.project_types import ProjectRead
+from shared_types.rfp_types import RFPRead
 
-from core.models.models import ProgrammerRead, ProjectRead, RFPRead
 from repositories import programmer_repository, project_repository, rfp_repository
 
 router = APIRouter(prefix="/entities")

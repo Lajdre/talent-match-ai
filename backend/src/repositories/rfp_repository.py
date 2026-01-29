@@ -1,6 +1,7 @@
 import logging
 
-from core.models.models import RFPRead
+from shared_types.rfp_types import RFPRead
+
 from core.models.rfp_models import RFPStructure
 from services.neo4j_service import get_neo4j_graph
 

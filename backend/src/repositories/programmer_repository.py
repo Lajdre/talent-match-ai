@@ -1,4 +1,5 @@
-from core.models.models import ProgrammerRead
+from shared_types.programmer_types import ProgrammerRead
+
 from services.neo4j_service import get_neo4j_graph
 
 

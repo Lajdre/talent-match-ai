@@ -1,6 +1,7 @@
 import logging
 
-from core.models.models import CandidateMatch, MatchResponse
+from shared_types.matching_types import CandidateMatch, MatchResponse
+
 from services.neo4j_service import get_neo4j_graph
 
 logger = logging.getLogger(__name__)
