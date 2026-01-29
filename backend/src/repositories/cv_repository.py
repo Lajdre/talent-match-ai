@@ -28,16 +28,15 @@ def upsert_cv(cv: CVStructure):
             ON CREATE SET s.name = $skill_name
 
             MERGE (p)-[r:HAS_SKILL]->(s)
-            SET r.experience_level = $proficiency
+            SET r.proficiency = $proficiency
             """
     for skill in cv.skills:
-      normalized_name = skill.skill_name.strip().title()
       graph.query(
         cypher,
         params={
           "person_name": cv.full_name,
-          "skill_name": normalized_name,
-          "proficiency": skill.proficiency,
+          "skill_name": skill.skill_name.strip().title(),
+          "proficiency": skill.proficiency.strip().title(),
         },
       )
 
@@ -54,7 +53,7 @@ def upsert_cv(cv: CVStructure):
         cypher,
         params={
           "person_name": cv.full_name,
-          "company_name": company_name.strip().capitalize(),
+          "company_name": company_name.strip().title(),
         },
       )
 

@@ -21,7 +21,6 @@ def upsert_project(project: ProjectStructure):
   graph.query(cypher, params=project.model_dump())
 
   # Merge Skill Requirements
-  # (Project)-[:REQUIRES]->(Skill)
   cypher = """
     MATCH (p:Project {id: $project_id})
     MERGE (s:Skill {id: $skill_name})
@@ -44,10 +43,6 @@ def upsert_project(project: ProjectStructure):
     )
 
   # Merge Assignments (People)
-  # Logic:
-  # If Status == COMPLETED -> WORKED_ON
-  # If Status == ACTIVE/PLANNED -> ASSIGNED_TO
-
   is_historical = project.status == ProjectStatus.COMPLETED
 
   rel_type = "WORKED_ON" if is_historical else "ASSIGNED_TO"
@@ -61,8 +56,6 @@ def upsert_project(project: ProjectStructure):
         r.end_date = $end_date
     """
 
-  # Note: We match Person by Name because standard GraphTransformer usually
-  # sets ID=Name for People. We try to match strictly first.
   for person in project.assigned_programmers:
     graph.query(
       cypher,

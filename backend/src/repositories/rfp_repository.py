@@ -16,7 +16,7 @@ def get_rfps() -> list[RFPRead]:
 
     WITH r, collect({
       name: s.id,
-      level: rel.experience_level,
+      level: rel.proficiency, // TODO: change level to proficiency
       mandatory: rel.mandatory
       }) as skills
 
@@ -65,7 +65,7 @@ def save_rfp(rfp_data: RFPStructure):
   """
   if graph.query(exists_cypher, params={"id": rfp_data.id}):
     raise ValueError(f"RFP with id '{rfp_data.id}' already exists.")
-    # TODO: provide a nice message later
+    # TODO: provide a nice message
 
   rfp_cypher = """
     MERGE (r:RFP {id: $id})
@@ -80,14 +80,14 @@ def save_rfp(rfp_data: RFPStructure):
 
   graph.query(rfp_cypher, params=rfp_data.model_dump())
 
-  # Create NEEDS relationships to Skills. Iterate through requirements to link them.
+  # Create NEEDS relationships to Skills
   skill_cypher = """
     MATCH (r:RFP {id: $rfp_id})
     MERGE (s:Skill {id: $skill_name})
     ON CREATE SET s.name = $skill_name
 
     MERGE (r)-[rel:NEEDS]->(s)
-    SET rel.experience_level = $proficiency,
+    SET rel.proficiency = $proficiency,
         rel.mandatory = $is_mandatory
     """
 
@@ -96,8 +96,8 @@ def save_rfp(rfp_data: RFPStructure):
       skill_cypher,
       params={
         "rfp_id": rfp_data.id,
-        "skill_name": req.skill_name,
-        "proficiency": req.min_proficiency,
+        "skill_name": req.skill_name.strip().title(),
+        "proficiency": req.min_proficiency.strip().title(),
         "is_mandatory": req.is_mandatory,
       },
     )
