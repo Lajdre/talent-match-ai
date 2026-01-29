@@ -6,7 +6,7 @@ from utils.utils import set_backgroud
 
 def render():
   set_backgroud()
-  st.title("👨💻 Programmers")
+  st.title("💻 Programmers")
 
   status_filter = st.selectbox(
     "Filter by status",
@@ -24,19 +24,19 @@ def render():
     st.info("No programmers found.")
     return
 
-  st.markdown(f"**{len(programmers)}** programmer(s) found")
+  n_programmers = len(programmers)
+  st.markdown(f"**{n_programmers}** programmer{'s' if n_programmers > 1 else ''} found")
 
   for prog in programmers:
+    print(prog)
     with st.container(border=True):
       col1, col2 = st.columns([3, 1])
 
       with col1:
         st.subheader(prog["id"])
-        if prog["skills"]:
-          skills_str = ", ".join(prog["skills"][:8])
-          if len(prog["skills"]) > 8:
-            skills_str += f" (+{len(prog['skills']) - 8} more)"
-          st.caption(f"**Skills:** {skills_str}")
+
+        if any(prog["skills"].values()):
+          st.caption(_format_skills(prog["skills"]))
 
       with col2:
         if prog["is_assigned"]:
@@ -45,6 +45,18 @@ def render():
             st.caption(f"📁 {prog['current_project']}")
         else:
           st.warning("Available")
+
+
+def _format_skills(skills: dict[str, list[str]]) -> str:
+  order = ["Expert", "Advanced", "Intermediate", "Beginner"]
+  parts = []
+
+  for level in order:
+    if skills.get(level):
+      skill_list = ", ".join(skills[level])
+      parts.append(f"**{level}:** {skill_list}")
+
+  return "   ".join(parts)
 
 
 render()
