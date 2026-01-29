@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from core.models.models import ProjectStructure
+from core.models.project_models import ProjectStructure
 from repositories.project_repository import upsert_project
 
 logger = logging.getLogger(__name__)
