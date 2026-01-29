@@ -5,27 +5,31 @@ description = "Talent Match AI"
 authors = [ ]
 requires-python = "~=3.12.11"
 dependencies = [
-    "fastapi[standard]>=0.128.0",
-    "langchain-core>=1.2.6",
-    "langchain-experimental>=0.4.1",
-    "langchain-neo4j>=0.6.0",
-    "langchain-openai>=1.1.6",
-    "openai>=2.14.0",
-    "python-dotenv>=1.2.1",
-    "result>=0.17.0",
-    "unstructured[pdf]>=0.18.26",
+  "shared-types",
+  "fastapi[standard]>=0.128.0",
+  "langchain-core>=1.2.6",
+  "langchain-experimental>=0.4.1",
+  "langchain-neo4j>=0.6.0",
+  "langchain-openai>=1.1.6",
+  "openai>=2.14.0",
+  "python-dotenv>=1.2.1",
+  "result>=0.17.0",
+  "unstructured[pdf]>=0.18.26",
 ]
 
 [dependency-groups]
 dev = [
-    "faker>=40.1.0",
-    "markdown>=3.10",
-    "weasyprint>=67.0",
+  "faker>=40.1.0",
+  "markdown>=3.10",
+  "weasyprint>=67.0",
 ]
 rag-comp = [
-    "chromadb>=1.4.1",
-    "langchain>=1.2.4",
+  "chromadb>=1.4.1",
+  "langchain>=1.2.4",
 ]
 
 [tool.ruff]
 indent-width = 2
+
+[tool.uv.sources]
+shared-types = { path = "../shared", editable = true }
