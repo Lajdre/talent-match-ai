@@ -409,7 +409,7 @@ if __name__ == "__main__":
 
     projects = generate_project_records(profiles, NUM_PROJECTS, faker)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    with open(PROJECTS_FILE, "w", encoding="utf-8") as f:
+    with PROJECTS_FILE.open("w", encoding="utf-8") as f:
       json.dump(projects, f, indent=2, default=str)
     print(f"Saved {len(projects)} projects to {PROJECTS_FILE}")
   except Exception as e:

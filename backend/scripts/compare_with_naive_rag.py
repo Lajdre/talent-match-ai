@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Sequence
 
+import aiofiles
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import Chroma
 from langchain_core.output_parsers import StrOutputParser
@@ -237,8 +238,8 @@ async def main() -> None:
     "results": results,
   }
 
-  with open("rag_comparison_report.json", "w", encoding="utf-8") as f:
-    json.dump(report, f, indent=2)
+  async with aiofiles.open("rag_comparison_report.json", "w", encoding="utf-8") as f:
+    await f.write(json.dumps(report, indent=2))
 
   print("Comparison complete.")
   print(json.dumps(report["summary"], indent=2))

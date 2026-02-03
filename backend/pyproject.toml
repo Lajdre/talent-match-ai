@@ -15,6 +15,7 @@ dependencies = [
   "python-dotenv>=1.2.1",
   "result>=0.17.0",
   "unstructured[pdf]>=0.18.26",
+  "aiofiles>=25.1.0",
 ]
 
 [dependency-groups]

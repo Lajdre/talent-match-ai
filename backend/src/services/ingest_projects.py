@@ -3,6 +3,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import aiofiles
+
 from core.models.project_models import ProjectStructure
 from repositories.project_repository import upsert_project
 
@@ -18,8 +20,8 @@ async def process_projects_json(path: Path) -> dict[str, Any]:
     if not path.exists():
       raise FileNotFoundError(f"Projects file not found at {path}")
 
-    with open(path, "r") as f:
-      raw_data = json.load(f)
+    async with aiofiles.open(path, "r") as f:
+      raw_data = json.loads(await f.read())
 
     processed_count = 0
     errors = []
