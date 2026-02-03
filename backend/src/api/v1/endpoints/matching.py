@@ -25,7 +25,7 @@ async def find_matches(
   try:
     return repo.find_candidates(rfp_id, threshold_months)
   except Exception as e:
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=500, detail=str(e)) from None
 
 
 @router.post("/{rfp_id}/confirm")
@@ -47,6 +47,6 @@ async def confirm_assignment(
       "rfp_id": rfp_id,
     }
   except ValueError as e:
-    raise HTTPException(status_code=404, detail=str(e))
+    raise HTTPException(status_code=404, detail=str(e)) from None
   except Exception as e:
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=500, detail=str(e)) from None

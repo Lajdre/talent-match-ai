@@ -32,9 +32,9 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
       f"Infer missing dates or details logically if implied.\n\nText:\n{text}"
     )
     return result
-  except Exception as e:
-    logger.error(f"LLM Extraction failed: {e}")
-    raise ValueError("Failed to parse RFP structure from text")
+  except Exception:
+    logger.exception("LLM Extraction failed")
+    raise ValueError("Failed to parse RFP structure from text") from None
 
 
 def _save_to_json_file(rfp_data: RFPStructure) -> None:

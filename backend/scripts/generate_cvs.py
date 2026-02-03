@@ -384,11 +384,15 @@ def generate_single_cv(
 def generate_cvs(
   num: int, output_dir: Path, faker: Faker, openai_client: OpenAI
 ) -> tuple[list[Path], list[dict]]:
-  paths_and_profiles = [
-    generate_single_cv(i + 1, output_dir, faker, openai_client) for i in range(num)
-  ]
-  paths, profiles = zip(*paths_and_profiles)
-  return list(paths), list(profiles)
+  paths: list[Path] = []
+  profiles: list[dict] = []
+
+  for i in range(num):
+    path, profile = generate_single_cv(i + 1, output_dir, faker, openai_client)
+    paths.append(path)
+    profiles.append(profile)
+
+  return paths, profiles
 
 
 if __name__ == "__main__":

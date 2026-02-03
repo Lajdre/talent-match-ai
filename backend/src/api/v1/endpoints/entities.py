@@ -23,7 +23,7 @@ async def get_programmers(
   try:
     return programmer_repository.get_programmers(status)
   except Exception as e:
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=500, detail=str(e)) from None
 
 
 @router.get("/projects", response_model=list[ProjectRead])
@@ -34,7 +34,7 @@ async def get_projects() -> list[ProjectRead]:
   try:
     return project_repository.get_projects()
   except Exception as e:
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=500, detail=str(e)) from None
 
 
 @router.get("/rfps", response_model=list[RFPRead])
@@ -45,4 +45,4 @@ async def get_rfps() -> list[RFPRead]:
   try:
     return rfp_repository.get_rfps()
   except Exception as e:
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=500, detail=str(e)) from None

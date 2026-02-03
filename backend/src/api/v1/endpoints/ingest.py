@@ -29,12 +29,14 @@ async def ingest_cv_endpoint(request: IngestRequest) -> dict:
     results: list[dict] = await ingest_cv(Path(request.file_path))
     return results[0]  # TODO: handle multiple retrun values
   except FileNotFoundError:
-    raise HTTPException(status_code=404, detail="CV file or directory not found")
+    raise HTTPException(
+      status_code=404, detail="CV file or directory not found"
+    ) from None
   except ValueError as e:
-    raise HTTPException(status_code=400, detail=str(e))
+    raise HTTPException(status_code=400, detail=str(e)) from None
   except Exception as e:
     logger.error("CV ingestion error: %s", e)
-    raise HTTPException(status_code=500, detail="Internal processing error")
+    raise HTTPException(status_code=500, detail="Internal processing error") from None
 
 
 @router.post("/rfp")
@@ -44,12 +46,14 @@ async def ingest_rfp_endpoint(request: IngestRequest) -> dict:
     results: list[dict] = await ingest_rfp(Path(request.file_path))
     return results[0]  # TODO: handle multiple retrun values
   except FileNotFoundError:
-    raise HTTPException(status_code=404, detail="RFP file or directory not found")
+    raise HTTPException(
+      status_code=404, detail="RFP file or directory not found"
+    ) from None
   except ValueError as e:
-    raise HTTPException(status_code=400, detail=str(e))
+    raise HTTPException(status_code=400, detail=str(e)) from None
   except Exception as e:
-    logger.error("RFP Ingestion error: %s", e)
-    raise HTTPException(status_code=500, detail="Internal processing error")
+    logger.exception("RFP ingestion error")
+    raise HTTPException(status_code=500, detail="Internal processing error") from None
 
 
 @router.post("/projects")
@@ -62,17 +66,19 @@ async def ingest_projects_endpoint(request: IngestRequest) -> dict:
     result = await process_projects_json(Path(request.file_path))
     return result
   except FileNotFoundError:
-    raise HTTPException(status_code=404, detail="File not found")
+    raise HTTPException(status_code=404, detail="File not found") from None
   except Exception as e:
-    logger.error(f"Project ingestion error: {str(e)}")
-    raise HTTPException(status_code=500, detail=str(e))
+    logger.exception("Project ingestion error")
+    raise HTTPException(status_code=500, detail=str(e)) from None
 
 
 # --- File upload endpoints ---
 
 
 @router.post("/cv/upload")
-async def ingest_cv_upload(file: UploadFile = File(...)) -> list[dict[str, Any]]:
+async def ingest_cv_upload(
+  file: Annotated[UploadFile, File(...)],
+) -> list[dict[str, Any]]:
   """Upload and ingest a CV PDF."""
   if not (file.filename and file.filename.lower().endswith(".pdf")):
     raise HTTPException(status_code=400, detail="File must be a PDF")
@@ -87,10 +93,10 @@ async def ingest_cv_upload(file: UploadFile = File(...)) -> list[dict[str, Any]]
     result = await ingest_cv(tmp_path)
     return result
   except ValueError as e:
-    raise HTTPException(status_code=400, detail=str(e))
+    raise HTTPException(status_code=400, detail=str(e)) from None
   except Exception as e:
     logger.error(f"CV upload ingestion error: {str(e)}")
-    raise HTTPException(status_code=500, detail="Internal processing error")
+    raise HTTPException(status_code=500, detail="Internal processing error") from None
   finally:
     if tmp_path:
       Path(tmp_path).unlink(missing_ok=True)
@@ -120,23 +126,25 @@ async def ingest_rfp_upload(
       "filename": file.filename,
     }
 
-  except ValueError as exc:
+  except ValueError as e:
     raise HTTPException(
-      status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-    ) from exc
-  except Exception as exc:
+      status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+    ) from None
+  except Exception as e:
     logger.exception("RFP upload ingestion failed")
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="Internal processing error",
-    ) from exc
+    ) from None
   finally:
     if tmp_path and tmp_path.exists():
       tmp_path.unlink(missing_ok=True)
 
 
 @router.post("/projects/upload")
-async def ingest_projects_upload(file: UploadFile = File(...)) -> dict[str, Any]:
+async def ingest_projects_upload(
+  file: Annotated[UploadFile, File(...)],
+) -> dict[str, Any]:
   """Upload and ingest a projects JSON file."""
   if not (file.filename and file.filename.lower().endswith(".json")):
     raise HTTPException(status_code=400, detail="File must be a JSON file")
@@ -151,10 +159,10 @@ async def ingest_projects_upload(file: UploadFile = File(...)) -> dict[str, Any]
     result = await process_projects_json(Path(tmp_path))
     return result
   except ValueError as e:
-    raise HTTPException(status_code=400, detail=str(e))
+    raise HTTPException(status_code=400, detail=str(e)) from None
   except Exception as e:
     logger.error(f"Projects upload ingestion error: {str(e)}")
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=500, detail=str(e)) from None
   finally:
     if tmp_path:
       Path(tmp_path).unlink(missing_ok=True)

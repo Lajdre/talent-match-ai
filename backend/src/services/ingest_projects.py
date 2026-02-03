@@ -46,4 +46,4 @@ async def process_projects_json(path: Path) -> dict[str, Any]:
 
   except Exception as e:
     logger.error(f"Global project ingestion failed: {e}")
-    raise RuntimeError(str(e))
+    raise RuntimeError(str(e)) from None
