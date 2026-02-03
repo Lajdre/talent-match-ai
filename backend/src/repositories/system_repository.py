@@ -72,9 +72,6 @@ def get_graph_metadata() -> dict[str, Any]:
   elif node_breakdown.get("Person", 0) == 0:
     warnings.append("No 'Person' nodes found. CV ingestion might have failed.")
 
-  if total_nodes > 0 and total_nodes < 10:
-    warnings.append("Graph density is very low (under 10 nodes).")
-
   return {
     "status": "healthy" if not warnings else "warning",
     "warnings": warnings,

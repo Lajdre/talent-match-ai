@@ -18,7 +18,7 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
   """Use OpenAI Structured Output to parse raw text into the RFP Pydantic model."""
   openai_chat_result = get_openai_chat(temperature=0)
   if isinstance(openai_chat_result, Err):
-    raise  # TODO: propagate
+    assert False  # TODO: propagate further # noqa: B011
 
   structured_llm = openai_chat_result.ok().with_structured_output(RFPStructure)
 
@@ -29,7 +29,9 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
       "Other formatting should be standard. "
       f"Infer missing dates or details logically if implied.\n\nText:\n{text}"
     )
-    return result  # TODO:
+    if isinstance(result, RFPStructure):
+      return result
+    return RFPStructure.model_validate(result)
   except Exception:
     logger.exception("LLM Extraction failed")
     raise ValueError("Failed to parse RFP structure from text") from None

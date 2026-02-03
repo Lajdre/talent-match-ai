@@ -68,7 +68,7 @@ async def _ingest_via_structured_output(pdf_path: Path, text: str) -> dict[str, 
   try:
     llm_result = get_openai_chat(temperature=0)
     if isinstance(llm_result, Err):
-      raise  # TODO: propagate
+      assert False  # TODO: propagate further # noqa: B011
 
     structured_llm = llm_result.ok().with_structured_output(CVStructure)
 
@@ -137,7 +137,7 @@ def _get_llm_transformer() -> LLMGraphTransformer:
   """Initialize the LLMGraphTransformer with the specific CV ontology."""
   llm_resulta = get_openai_chat(config.OPENAI_DEFAULT_MODEL)
   if isinstance(llm_resulta, Err):
-    raise  # TODO: propagate further
+    assert False  # TODO: propagate further # noqa: B011
 
   additional_instructions = """
     Ensure skill/technology names use canonical capitalization.

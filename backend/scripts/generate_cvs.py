@@ -209,7 +209,7 @@ def generate_project_records(
   return projects
 
 
-def assign_programmers_to_projects(
+def assign_programmers_to_projects(  # noqa: PLR0915
   projects: list[dict], programmer_profiles: list[dict]
 ) -> list[dict]:
   """Assign programmers to projects based on skill matching, leaving some unassigned."""
@@ -248,9 +248,8 @@ def assign_programmers_to_projects(
       elif project_end is None:  # Ongoing project
         if assign_end >= project_start:
           return False
-      else:  # Both have end dates
-        if not (project_end < assign_start or project_start > assign_end):
-          return False
+      elif not (project_end < assign_start or project_start > assign_end):
+        return False
     return True
 
   # Process only active and completed projects for assignments
@@ -324,28 +323,27 @@ def assign_programmers_to_projects(
         assignment_end_date = estimated_end - timedelta(days=days_before_end)
         assignment_end = assignment_end_date.isoformat()
 
+      # For other statuses, use project end date if available
+      elif project["end_date"]:
+        project_end = datetime.fromisoformat(project["end_date"]).date()
+        project_start = datetime.fromisoformat(project["start_date"]).date()
+        project_duration = (project_end - project_start).days
+        days_before_end = random.randint(1, 30)
+        days_before_end = min(
+          random.randint(1, 30),
+          max(1, project_duration - 1),
+        )
+        assignment_end_date = project_end - timedelta(days=days_before_end)
+        assignment_end = assignment_end_date.isoformat()
       else:
-        # For other statuses, use project end date if available
-        if project["end_date"]:
-          project_end = datetime.fromisoformat(project["end_date"]).date()
-          project_start = datetime.fromisoformat(project["start_date"]).date()
-          project_duration = (project_end - project_start).days
-          days_before_end = random.randint(1, 30)
-          days_before_end = min(
-            random.randint(1, 30),
-            max(1, project_duration - 1),
-          )
-          assignment_end_date = project_end - timedelta(days=days_before_end)
-          assignment_end = assignment_end_date.isoformat()
-        else:
-          # Fallback: use estimated duration
-          project_start = datetime.fromisoformat(project["start_date"]).date()
-          estimated_end = project_start + timedelta(
-            days=project["estimated_duration_months"] * 30
-          )
-          days_before_end = random.randint(1, 30)
-          assignment_end_date = estimated_end - timedelta(days=days_before_end)
-          assignment_end = assignment_end_date.isoformat()
+        # Fallback: use estimated duration
+        project_start = datetime.fromisoformat(project["start_date"]).date()
+        estimated_end = project_start + timedelta(
+          days=project["estimated_duration_months"] * 30
+        )
+        days_before_end = random.randint(1, 30)
+        assignment_end_date = estimated_end - timedelta(days=days_before_end)
+        assignment_end = assignment_end_date.isoformat()
 
       assignment = {
         "programmer_name": programmer["name"],
