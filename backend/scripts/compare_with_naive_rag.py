@@ -117,7 +117,7 @@ def build_naive_rag() -> Runnable[object, str]:
       f"[Document {i + 1}]\n{doc.page_content}" for i, doc in enumerate(docs)
     )
 
-  rag_chain = (
+  return (
     {
       "context": retriever | format_docs,
       "question": RunnablePassthrough(),
@@ -126,8 +126,6 @@ def build_naive_rag() -> Runnable[object, str]:
     | llm
     | StrOutputParser()
   )
-
-  return rag_chain
 
 
 async def judge_answer(

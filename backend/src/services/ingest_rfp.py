@@ -18,7 +18,7 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
   """Use OpenAI Structured Output to parse raw text into the RFP Pydantic model."""
   openai_chat_result = get_openai_chat(temperature=0)
   if isinstance(openai_chat_result, Err):
-    assert False  # TODO: propagate further # noqa: B011
+    assert False  # TODO: propagate further # noqa: B011, PT015
 
   structured_llm = openai_chat_result.ok().with_structured_output(RFPStructure)
 
@@ -49,7 +49,7 @@ def _save_to_json_file(rfp_data: RFPStructure) -> None:
 
   if RFP_JSON_FILE.exists():
     try:
-      with open(RFP_JSON_FILE, "r") as f:
+      with RFP_JSON_FILE.open("r") as f:
         current_data = json.load(f)
     except json.JSONDecodeError:
       logger.exception("rfps.json was corrupted, starting fresh.")
@@ -67,7 +67,7 @@ def _save_to_json_file(rfp_data: RFPStructure) -> None:
   if not updated:
     current_data.append(rfp_dict)
 
-  with open(RFP_JSON_FILE, "w") as f:
+  with RFP_JSON_FILE.open("w") as f:
     json.dump(current_data, f, indent=2)
 
 

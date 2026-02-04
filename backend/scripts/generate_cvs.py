@@ -204,9 +204,7 @@ def generate_project_records(
     }
     projects.append(project)
 
-  projects = assign_programmers_to_projects(projects, programmer_profiles)
-
-  return projects
+  return assign_programmers_to_projects(projects, programmer_profiles)
 
 
 def assign_programmers_to_projects(  # noqa: PLR0915

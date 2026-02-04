@@ -21,5 +21,4 @@ async def get_node_samples(
   label: str = Query(..., description="The node label to sample, e.g., 'Person'"),
 ) -> list[dict[str, Any]]:
   """Get a few raw records for a specific node label to inspect data quality."""
-  samples = system_repository.get_node_sample(label)
-  return samples
+  return system_repository.get_node_sample(label)

@@ -16,8 +16,7 @@ async def reset_db_endpoint() -> dict:
   Use only for development/testing.
   """
   try:
-    result = reset_database()
-    return result
+    return reset_database()
   except Exception:
     logger.exception("Database reset failed")
     raise HTTPException(

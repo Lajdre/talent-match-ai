@@ -40,7 +40,7 @@ def get_programmers(status: str | None = None) -> list[ProgrammerRead]:
 
   if status == "available":
     return [p for p in parsed_results if not p.is_assigned]
-  elif status == "assigned":
+  if status == "assigned":
     return [p for p in parsed_results if p.is_assigned]
 
   return parsed_results

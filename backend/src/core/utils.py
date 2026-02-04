@@ -13,8 +13,7 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
   """
   try:
     elements = partition_pdf(filename=str(pdf_path))
-    full_text = "\n\n".join([str(element) for element in elements])
-    return full_text
+    return "\n\n".join([str(element) for element in elements])
   except Exception as e:
     logger.exception("Failed to extract text from %s.", pdf_path)
     raise ValueError(f"Could not extract text from PDF: {str(e)}") from None

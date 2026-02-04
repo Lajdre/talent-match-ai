@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import markdown
@@ -8,7 +7,7 @@ from weasyprint import CSS, HTML
 def save_markdown_as_pdf(
   markdown_content: str, filename: str, output_dir: Path
 ) -> Path:
-  os.makedirs(output_dir, exist_ok=True)
+  output_dir.mkdir(parents=True, exist_ok=True)
 
   html_content = markdown.markdown(markdown_content)
 

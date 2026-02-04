@@ -26,8 +26,7 @@ async def query_knowledge_graph(request: QueryRequest) -> dict[str, Any]:
   if not request.question.strip():
     raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-  result = await query_service.process_query(request.question)
-  return result
+  return await query_service.process_query(request.question)
 
 
 @router.get("/examples", response_model=dict[str, list[str]])

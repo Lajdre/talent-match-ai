@@ -16,7 +16,7 @@ def _get_qa_chain() -> GraphCypherQAChain:
 
   openai_chat_resulta = get_openai_chat(config.OPENAI_GRAPH_QUERY_MODEL)
   if openai_chat_resulta.err():
-    assert False  # TODO: propagate further # noqa: B011
+    assert False  # TODO: propagate further # noqa: B011, PT015
 
   return GraphCypherQAChain.from_llm(
     llm=openai_chat_resulta.ok(),

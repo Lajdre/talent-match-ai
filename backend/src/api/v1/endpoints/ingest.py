@@ -63,8 +63,7 @@ async def ingest_projects_endpoint(request: IngestRequest) -> dict:
   This parses the file and creates Project nodes, Requirement links, and Assignments.
   """
   try:
-    result = await process_projects_json(Path(request.file_path))
-    return result
+    return await process_projects_json(Path(request.file_path))
   except FileNotFoundError:
     raise HTTPException(status_code=404, detail="File not found") from None
   except Exception as e:
@@ -90,8 +89,7 @@ async def ingest_cv_upload(
       tmp.write(content)
       tmp_path = Path(tmp.name)
 
-    result = await ingest_cv(tmp_path)
-    return result
+    return await ingest_cv(tmp_path)
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e)) from None
   except Exception:
@@ -156,8 +154,7 @@ async def ingest_projects_upload(
       tmp.write(content)
       tmp_path = tmp.name
 
-    result = await process_projects_json(Path(tmp_path))
-    return result
+    return await process_projects_json(Path(tmp_path))
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e)) from None
   except Exception as e:

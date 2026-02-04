@@ -44,11 +44,10 @@ def reset_database() -> dict:
 
     if node_count == 0 and rel_count == 0:
       return {"status": "success", "message": "Database completely cleared"}
-    else:
-      return {
-        "status": "warning",
-        "message": f"Cleanup incomplete. Nodes: {node_count}, Relationships: {rel_count}",
-      }
+    return {
+      "status": "warning",
+      "message": f"Cleanup incomplete. Nodes: {node_count}, Relationships: {rel_count}",
+    }
 
   except Exception as e:
     logger.exception("Error during database reset.")
