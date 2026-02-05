@@ -18,7 +18,7 @@ async def _extract_rfp_data(text: str) -> RFPStructure:
   """Use OpenAI Structured Output to parse raw text into the RFP Pydantic model."""
   openai_chat_result = get_openai_chat(temperature=0)
   if isinstance(openai_chat_result, Err):
-    assert False  # TODO: propagate further # noqa: B011, PT015
+    assert False  # TODO: propagate further # noqa: B011, PT015, S101, RUF100
 
   structured_llm = openai_chat_result.ok().with_structured_output(RFPStructure)
 

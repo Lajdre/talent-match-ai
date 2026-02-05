@@ -64,6 +64,7 @@ def get_graph_metadata() -> dict[str, Any]:
       if count > 0:
         domain_stats[name] = count
     except Exception:
+      logger.error("Failed to get a count result from for domain stats.")
       pass
 
   warnings = []

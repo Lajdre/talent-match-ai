@@ -15,7 +15,7 @@ class Config(BaseSettings):
   NEO4J_USERNAME: str = "neo4j"
   NEO4J_PASSWORD: SecretStr | None = None
 
-  OPENAI_API_KEY: str = ""
+  OPENAI_API_KEY: SecretStr | None = None
   OPENAI_DEFAULT_MODEL: str = "gpt-4o-mini"
   OPENAI_DEFAULT_TEMPERATURE: float = 0
   OPENAI_GRAPH_QUERY_MODEL: str = "gpt-4o"
@@ -30,6 +30,13 @@ class Config(BaseSettings):
     if not (neo4j_password and neo4j_password.get_secret_value().strip()):
       raise ValueError("NEO4J_PASSWORD cannot be empty")
     return neo4j_password
+
+  @field_validator("OPENAI_API_KEY")
+  @classmethod
+  def openai_api_key_not_empty(cls, openai_api_key: SecretStr | None) -> SecretStr:
+    if not (openai_api_key and openai_api_key.get_secret_value().strip()):
+      raise ValueError("OPENAI_API_KEY cannot be empty")
+    return openai_api_key
 
 
 config = Config()

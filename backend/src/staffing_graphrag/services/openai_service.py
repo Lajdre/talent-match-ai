@@ -12,14 +12,13 @@ def get_openai_chat(
   model_name: str = config.OPENAI_DEFAULT_MODEL,
   temperature: float = config.OPENAI_DEFAULT_TEMPERATURE,
 ) -> Result[ChatOpenAI, str]:
-  api_key = config.OPENAI_API_KEY
-  if not api_key:
+  if not config.OPENAI_API_KEY:
     return Err("OpenAI api key is missing.")
 
   return Ok(
     ChatOpenAI(
       model=model_name,
       temperature=temperature,
-      api_key=SecretStr(config.OPENAI_API_KEY),
+      api_key=SecretStr(config.OPENAI_API_KEY.get_secret_value()),
     )
   )

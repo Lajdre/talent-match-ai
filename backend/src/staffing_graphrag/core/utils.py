@@ -16,4 +16,4 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
     return "\n\n".join([str(element) for element in elements])
   except Exception as e:
     logger.exception("Failed to extract text from %s.", pdf_path)
-    raise ValueError(f"Could not extract text from PDF: {str(e)}") from None
+    raise ValueError(f"Could not extract text from PDF: {e}") from None

@@ -53,4 +53,4 @@ def reset_database() -> dict:
     logger.exception("Error during database reset.")
     # Fallback basic cleanup
     graph.query("MATCH (n) DETACH DELETE n")
-    raise RuntimeError(f"Database reset failed: {str(e)}") from None
+    raise RuntimeError(f"Database reset failed: {e}") from None
