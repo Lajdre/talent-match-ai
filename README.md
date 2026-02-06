@@ -11,6 +11,9 @@ the perfect developer for every project.
 ## System Architecture
 ![System Architecture](./docs/system_architecture_graph.svg)
 
+## Showcase
+https://github.com/user-attachments/assets/06cc76bf-6a21-4cbb-920c-1d97c39d6439
+
 ### The Problem
 Modern staffing is broken. It relies on:
   - Data siloed between different places and formats
