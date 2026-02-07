@@ -31,6 +31,15 @@ rag-comp = [
 [tool.uv.sources]
 shared-types = { path = "../shared", editable = true }
 
+[tool.basedpyright]
+executionEnvironments = [
+  { root = ".", extraPaths = ["src/staffing_graphrag"] }
+]
+reportUnusedVariable = "hint"
+reportUnusedCallResult = false
+reportAny = false
+reportExplicitAny = false
+
 [tool.ruff.lint.isort]
 known-first-party = [
   "api",
